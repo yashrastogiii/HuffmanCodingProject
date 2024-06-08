@@ -1,59 +1,87 @@
 package huffman;
-
 import java.util.ArrayList;
 
-public class Heap<T extends Comparable<T>> {
-    private ArrayList<T> data = new ArrayList<>();
+class Heap<T extends Comparable<T>> {
 
-    public void insert(T item) {
-        data.add(item);
-        upHeapify(data.size() - 1);
+  private ArrayList<T> list;
+
+  public Heap() {
+    list = new ArrayList<>();
+  }
+  private void swap(int first, int second) {
+    T temp = list.get(first);
+    list.set(first, list.get(second));
+    list.set(second, temp);
+  }
+
+  private int parent(int index) {
+    return (index - 1) / 2;
+  }
+
+  private int left(int index) {
+    return index * 2 + 1;
+  }
+  
+  private int right(int index) {
+    return index * 2 + 2;
+  }
+  public int size(){
+      return list.size();
+  }
+  public void insert(T value) {
+    list.add(value);
+    upheap(list.size() - 1);
+  }
+  private void upheap(int index) {
+    if(index == 0) {
+      return;
+    }
+    int p = parent(index);
+    if(list.get(index).compareTo(list.get(p)) < 0) {
+      swap(index, p);
+      upheap(p);
+    }
+  }
+
+  public T remove() throws Exception {
+    if (list.isEmpty()) {
+      throw new Exception("Removing from an empty heap!");
     }
 
-    public T remove() {
-        swap(0, data.size() - 1);
-        T removed = data.remove(data.size() - 1);
-        downHeapify(0);
-        return removed;
+    T temp = list.get(0);
+
+    T last = list.remove(list.size() - 1);
+    if (!list.isEmpty()) {
+      list.set(0, last);
+      downheap(0);
+    }
+    
+    return temp;
+  }
+  private void downheap(int index) {
+    int min = index;
+    int left = left(index);
+    int right = right(index);
+
+    if(left < list.size() && list.get(min).compareTo(list.get(left)) > 0) {
+      min = left;
     }
 
-    public int size() {
-        return this.data.size();
+    if(right < list.size() && list.get(min).compareTo(list.get(right)) > 0) {
+      min = right;
     }
 
-    private void upHeapify(int ci) {
-        int pi = (ci - 1) / 2;
-
-        if (data.get(ci).compareTo(data.get(pi)) < 0) {
-            swap(ci, pi);
-            upHeapify(pi);
-        }
+    if(min != index) {
+      swap(min, index);
+      downheap(min);
     }
+  }
 
-    private void downHeapify(int pi) {
-        int lci = 2 * pi + 1;
-        int rci = 2 * pi + 2;
-
-        int mini = pi;
-
-        if (lci < data.size() && data.get(lci).compareTo(data.get(mini)) < 0) {
-            mini = lci;
-        }
-
-        if (rci < data.size() && data.get(rci).compareTo(data.get(mini)) < 0) {
-            mini = rci;
-        }
-
-        if (mini != pi) {
-            swap(pi, mini);
-            downHeapify(mini);
-        }
+  public ArrayList<T> heapSort() throws Exception {
+    ArrayList<T> data = new ArrayList<>();
+    while(!list.isEmpty()) {
+      data.add(this.remove());
     }
-
-    private void swap(int i, int j) {
-        T ith = data.get(i);
-        T jth = data.get(j);
-        data.set(i, jth);
-        data.set(j, ith);
-    }
+    return data;
+  }
 }
